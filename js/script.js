@@ -422,6 +422,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // Закрытие меню по клику на пункт навигации
+  els('.menu-panel a').forEach(link => {
+    link.addEventListener('click', () => {
+      navOverlay.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+    });
+  });
+
   // Показ/скрытие фиксированной текстуры бумаги при переходе в Invite и ниже
   function updatePaperBg() {
     if (!inviteEl || !paperBg) return;
