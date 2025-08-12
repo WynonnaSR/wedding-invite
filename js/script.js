@@ -16,7 +16,7 @@ const CONFIG = {
     title: "ДОНО & САГИТ — Свадебная вечеринка",
     start: "2025-09-13T17:45:00", // ISO (локальное время)
     durationMinutes: 300,
-    location: "Ташкент Малая кольцевая дорога, 70",
+    location: "Ташкент Малая кольцевая дорога, 70a",
     uidDomain: "donosagit.example.local"
   }
 };
