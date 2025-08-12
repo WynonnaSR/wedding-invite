@@ -1,0 +1,702 @@
+/* ======================
+   VARIABLES / PALETTE
+   ====================== */
+/* Цвета можно менять здесь.
+   Палитра (пример, 4 цвета):
+   --cream: #F8F2E7
+   --olive: #7A8450
+   --faded-blue: #596D7B
+   --soft-beige: #D8CAB0
+*/
+:root{
+  --cream: #F8F2E7;
+  --olive: #7A8450;
+  --faded-blue: #596D7B;
+  --soft-beige: #D8CAB0;
+  --accent-dark: #2E2A26;
+  --glass: rgba(255,255,255,0.75);
+  --nav-bg: rgba(255,255,255,1);
+  --max-width: 980px;
+  --site-max: 980px; /* максимальная ширина сайта на десктопе */
+  /* добавим нейтральный серый фон бумаги */
+  --paper-gray: #F1F1F1;
+
+  /* timing */
+  --ease: cubic-bezier(.22,.9,.3,1);
+  --fast: 400ms;
+  --med: 650ms;
+}
+
+/* FONTS — подключаем локальные файлы */
+@font-face {
+    font-family: 'Cormorant Garamond';
+    src: url('../fonts/CormorantGaramond-VariableFont_wght.ttf') format('truetype');
+    font-weight: 400 700; /* диапазон весов */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Great Vibes';
+    src: url('../fonts/GreatVibes-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* --- Базовые настройки шрифтов --- */
+:root {
+    --font-main: 'Cormorant Garamond', serif;
+    --font-script: 'Great Vibes', cursive;
+}
+
+/* reduced motion fallback */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+/* BASIC LAYOUT */
+* { box-sizing: border-box; }
+html, body { height: 100%; scroll-behavior: smooth; }
+/* БЫЛО: html { scroll-snap-type: y proximity; } */
+/* БЫЛО: html.no-snap { scroll-snap-type: none; } */
+html { scroll-snap-type: none; }
+
+body {
+  margin: 0;
+  font-family: var(--font-main), system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: var(--accent-dark);
+  background: linear-gradient(180deg,var(--cream),#FAF8F6 60%);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height: 1.45;
+}
+
+/* NAV */
+.nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 60px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 0 12px;
+  z-index: 60;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.98), rgba(255,255,255,0.0));
+  transition: background 300ms var(--ease), opacity 300ms var(--ease);
+}
+.nav.scrolled { opacity: .85; backdrop-filter: blur(4px); }
+
+.burger {
+  width: 42px;
+  height: 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+
+  /* добавлено для iOS */
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 0;
+
+  /* цвет для полосок через currentColor */
+  color: var(--accent-dark);
+}
+.burger span {
+  display: block;
+  width: 28px;               /* явная ширина — иначе на iOS может схлопываться */
+  height: 3px;
+  border-radius: 2px;
+  background: currentColor;  /* было var(--accent-dark); так надёжнее на iOS */
+  transition: transform 220ms var(--ease);
+}
+.nav-right { display:flex; gap:8px; align-items:center; }
+.btn { font-size:14px; padding:10px 12px; border:1px solid rgba(0,0,0,0.08); background:white; border-radius:8px; cursor:pointer;
+  color: var(--accent-dark);
+}
+.btn.small { padding:8px 10px; font-size:13px; }
+
+/* NAV overlay (menu) */
+.nav-overlay {
+    position: fixed;
+    left: 0;
+    top: 60px; /* под шапкой */
+    width: 100vw;
+    height: calc(100vh - 60px);
+    background: transparent; /* прозрачный фон */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 280ms var(--ease);
+    z-index: 100;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.nav-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Само меню */
+.menu-panel {
+    background: rgba(248,242,231,0.98);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 32px 32px 24px 32px;
+    margin: -10px 0 0 5px;
+    min-width: 220px;
+    max-width: 90vw;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Список внутри меню */
+.menu-panel ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.menu-panel a {
+    text-decoration: none;
+    color: var(--accent-dark);
+    font-size: 18px;
+}
+
+/* HERO */
+.hero { position:relative; height:100vh; min-height:560px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.hero-bg { position:absolute; inset:0; z-index:0; overflow:hidden; display:block; }
+.hero-bg img { width:110%; height:110%; object-fit:cover; transform: translateY(0); will-change:transform; transition:transform 600ms var(--ease); filter: grayscale(1) contrast(.95) saturate(0.5); }
+.hero-overlay { position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.45) 80%); opacity:0; transition: opacity 600ms var(--ease); pointer-events:none; }
+.hero-content { position:relative; z-index:2; text-align:center; color:white; padding:40px 20px; max-width:820px; width:100%; }
+.hero-large { font-family: var(--font-main); font-size: 64px; letter-spacing:3px; margin:0; text-transform:uppercase; color:#fff; font-weight:700; }
+.hero-script { font-family: var(--font-script); font-size:28px; margin:8px 0 16px; color:rgba(255,255,255,0.95); }
+.hero-meta { margin-top:12px; display:flex; gap:12px; justify-content:center; align-items:center; color:rgba(255,255,255,0.95); }
+.hero-meta-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 50px;
+  margin-bottom: 18px;
+}
+.hero-meta-vertical .hero-script {
+  font-size: 24px;
+  color: #fff;
+  margin-bottom: -12px;
+  margin-top: 0;
+  font-family: var(--font-script);
+}
+
+/* Paper section */
+.section {
+  padding:64px 18px;
+  position: relative; /* гарантирует, что секция рисуется поверх bg (-1) */
+  z-index: 1;
+}
+.card {
+  /* была собственная текстура — убираем, оставляем мягкий белый */
+  background: rgba(255,255,255,0.82);
+  padding:28px; border-radius:12px; max-width:var(--max-width); margin:0 auto;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.06); color:var(--accent-dark); font-size:18px;
+}
+
+/* Фиксированный слой бумажной текстуры для всего контента после hero */
+.paper-bg-fixed {
+  position: fixed;
+  inset: 0;
+  z-index: -1; /* над champange_bg, под контентом */
+  background-color: var(--paper-gray); /* непрозрачная база */
+  background-image: url('../assets/img/paper_texture.png');
+  background-repeat: repeat;
+  background-size: 512px 512px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 600ms var(--ease), transform 600ms var(--ease);
+  pointer-events: none;
+}
+.paper-bg-fixed.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Секции ниже: только tint поверх фиксированной текстуры (без повторной текстуры) */
+.paper-section,
+.schedule-section,
+.photo-section,
+.rsvp-section,
+.faq-section,
+.address-section,
+.footer {
+  background-color: transparent;
+  background-image: linear-gradient(var(--section-tint), var(--section-tint));
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Единые оттенки tint по секциям (можете менять альфу) */
+.paper-section    { --section-tint: rgba(248,242,231,0.80); }
+.schedule-section { --section-tint: rgba(216,202,176,0.78); }
+.photo-section    { --section-tint: rgba(89,109,123,0.75); color:#fff; }
+.rsvp-section     { --section-tint: rgba(255,255,255,0.82); }
+.faq-section      { --section-tint: rgba(248,242,231,0.82); }
+.address-section  { --section-tint: rgba(255,255,255,0.82); }
+.footer           { --section-tint: rgba(248,242,231,0.85); }
+
+/* typographic helpers */
+.section-title { font-family: var(--font-main); font-size:26px; margin:0 0 14px; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: rgba(255,255,255,0.6); padding:12px; border-radius:8px; white-space: normal; /* позволяем переносы внутри строк */ }
+/* строки расписания: время ····· событие */
+.mono .mono-line {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  line-height: 1.5;
+}
+.mono .time { white-space: nowrap; font-weight: 600; }
+.mono .event { min-width: 0; } /* корректные переносы */
+.mono .dots {
+  flex: 1 1 auto;
+  height: 1px;
+  background-image: radial-gradient(currentColor 1px, transparent 1px);
+  background-size: 6px 1px;
+  background-repeat: repeat-x;
+  background-position: bottom;
+  opacity: 0.35;
+  margin-bottom: 4px;
+}
+
+/* photo section typography */
+#photo-text { max-width: var(--max-width); margin: 8px auto 0; font-size: 18px; line-height: 1.55; }
+.photo-section a { color: #fff; text-decoration: underline; }
+.tg-handle { font-weight: 600; text-decoration: underline; }
+
+/* RSVP form */
+.rsvp-form { max-width:600px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
+.rsvp-form label { display:flex; flex-direction:column; gap:6px; font-size:14px; }
+.rsvp-form input, .rsvp-form textarea { padding:10px; border-radius:8px; border:1px solid rgba(0,0,0,0.08); font-size:15px; }
+.form-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: nowrap; /* не переносить элементы */
+}
+/* винтажные штрихи */
+.rsvp-section .section-title {
+  text-align: left;                 /* как у “ФОТО” */
+  font-family: var(--font-main);    /* как у .section-title по умолчанию */
+  font-size: 26px;
+  color: var(--accent-dark);
+  margin-bottom: 16px;
+}
+.rsvp-form fieldset {
+  border: 1px dashed rgba(0,0,0,0.14);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.6);
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.rsvp-form legend {
+  font-family: var(--font-main);
+  font-size: 14px;
+  color: rgba(0,0,0,0.7);
+  padding: 0 6px;
+}
+.rsvp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.85);
+  cursor: pointer;
+  user-select: none;
+}
+.rsvp-pill input[type="radio"] {
+  accent-color: var(--faded-blue);
+}
+.rsvp-form textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+.rsvp-section .btn {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+}
+.rsvp-section .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  transition: transform 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+
+/* faq details styles */
+details { background: rgba(255,255,255,0.8); padding:10px 12px; border-radius:8px; margin-bottom:8px; }
+summary { cursor:pointer; font-weight:600; }
+
+/* map */
+.map-wrap iframe { border:0; border-radius:8px; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
+/* map actions */
+.map-actions { display:flex; gap:10px; align-items:center; margin-top:10px; }
+.map-btn {
+  width:44px; height:44px; border-radius:50%;
+  display:inline-flex; align-items:center; justify-content:center;
+  border:1px solid rgba(0,0,0,0.12); box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  transition: transform 150ms var(--ease), box-shadow 150ms var(--ease);
+}
+.map-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+.map-btn-google { background:#4285F4; }
+.map-btn-yandex { background:#FF0000; }
+.map-btn-google::after,
+.map-btn-yandex::after {
+  color:#fff; font-weight:700; font-family: var(--font-main); font-size:18px; line-height:1;
+}
+.map-btn-google::after { content:"G"; }  /* условная иконка Google */
+.map-btn-yandex::after { content:"Я"; }  /* условная иконка Яндекс */
+
+/* footer */
+.footer { padding:36px 18px; text-align:center; font-size:14px; color:var(--faded-blue); }
+/* минималистичный кредит внизу */
+.footer-credit {
+  margin: 10px auto 0;
+  padding-top: 8px;
+  max-width: var(--max-width);
+  font-size: 12px;
+  opacity: 0.8;
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+.footer a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+/* responsive */
+@media (max-width:720px) {
+  .hero-large { font-size:42px; }
+  .hero-script { font-size:20px; }
+  .gallery img { width:100%; }
+  .nav { height:56px; padding:0 8px; }
+  .burger { transform: none; }
+  /* на мобильных чуть шире, чтобы точно не ломалось */
+  .burger span { width: 30px; }
+}
+
+/* utility classes for animations */
+.hero-content.fade-in { opacity:0; transform: translateY(24px); transition: opacity var(--med) var(--ease), transform var(--med) var(--ease); }
+.hero-content.fade-in.show { opacity:1; transform:translateY(0); }
+.slide-up { opacity:0; transform: translateY(24px); transition: opacity 700ms var(--ease), transform 700ms var(--ease); }
+.slide-up.show { opacity:1; transform:translateY(0); }
+.nav.fade-in, .hero-bg.fade-in {
+  opacity: 0;
+  transition: opacity 700ms var(--ease);
+}
+.nav.fade-in.show, .hero-bg.fade-in.show {
+  opacity: 1;
+}
+
+.hero-and {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+.hero-and .line {
+  display: inline-block;
+  height: 2px;
+  width: 60px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 2px;
+}
+.hero-and span#hero-and-text {
+  padding: 0 8px;
+  font-family: var(--font-script);
+  font-size: 28px;
+  color: #fff;
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  .hero-and .line { width: 28px; }
+  .hero-and span#hero-and-text { font-size: 18px; }
+}
+
+.hero-countdown {
+  margin-top: 115px;
+  margin-bottom: 0;
+  text-align: center;
+  font-size: 1.2em;
+}
+.count-row {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  font-family: var(--font-main);
+  font-size: 64px;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.count-row span {
+  min-width: 48px;
+  display: inline-block;
+}
+.count-labels {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  margin-top: 4px;
+  font-family: var(--font-main);
+  font-size: 22px;
+  color: #fff;
+  opacity: 0.85;
+}
+.count-labels span {
+  min-width: 48px;
+  display: inline-block;
+  text-align: center;
+}
+@media (max-width: 600px) {
+  .count-row { font-size: 46px; gap: 16px; }
+  .count-labels { font-size: 16px; gap: 16px; }
+  .count-row span, .count-labels span { min-width: 28px; }
+}
+
+.hero-date {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  justify-content: center;
+}
+.hero-date .hero-large {
+  font-size: 48px;
+  font-family: var(--font-main);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin: 0;
+}
+.hero-date .hero-script {
+  font-size: 36px;
+  font-family: var(--font-script);
+  color: #fff;
+  margin: 0 2px 0 2px;
+  line-height: 1;
+}
+@media (max-width: 600px) {
+  .hero-date .hero-large { font-size: 28px; }
+  .hero-date .hero-script { font-size: 30px; }
+}
+
+/* Шаги героя */
+.hero-steps {
+  position: relative;
+  width: 100%;
+  /* height: auto; без overflow */
+}
+.hero-step {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  scroll-snap-align: unset;
+}
+.hero-step[data-step="1"] {
+  scroll-snap-align: unset;
+}
+
+/* БЫЛО: у шагов был snap к центру */
+.hero-step {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  scroll-snap-align: unset;
+}
+.hero-step[data-step="1"] {
+  scroll-snap-align: unset;
+}
+
+.hero-bg-fixed {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  /* фиксированный фон ограничиваем по ширине сайта и центрируем */
+  left: 50%;
+  width: min(100vw, var(--site-max));
+  transform: translateX(-50%);
+  z-index: -2; /* ниже текстуры бумаги */
+  background: url('../assets/img/champagne_bw.jpg') center center/cover no-repeat;
+  pointer-events: none;
+  transition: opacity 0.7s var(--ease);
+}
+.hero-bg-fixed::after {
+  content: "";
+  position: absolute;
+  inset: 0; /* градиент повторяет новую ширину hero-bg-fixed */
+  background: linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.45) 80%);
+  opacity: 0;
+  transition: opacity 0.7s var(--ease);
+  pointer-events: none;
+}
+/* затемнение включается после первого скролла */
+.hero-steps.overlay-on .hero-bg-fixed::after { opacity: 1; }
+/* когда выходим из блока hero — прячем фон */
+.hero-bg-fixed.bg-hidden { opacity: 0; }
+
+.hero-step-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+.hero-step-content.show { opacity: 1; transform: translateY(0); }
+
+/* Крупнее для шага 3: "Ждём вас" + дата */
+#hero-step-3 .hero-script { font-size: 36px; }
+#hero-step-3 .hero-large  { font-size: 76px; letter-spacing: 3px; }
+
+@media (max-width: 600px) {
+  #hero-step-3 .hero-script { font-size: 26px; }
+  #hero-step-3 .hero-large  { font-size: 42px; }
+}
+
+/* новый маленький лейбл под таймером */
+.hero-countdown-label {
+  margin-top: 6px;
+  text-align: center;
+  font-family: var(--font-main);
+  font-size: 18px;
+  color: #fff;
+  opacity: 0.9;
+  letter-spacing: 1px;
+}
+@media (max-width: 600px) {
+  .hero-countdown-label { font-size: 14px; }
+}
+
+.faq-variant-select {
+  margin-top: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.9);
+  font-size: 14px;
+}
+
+/* Invite styles */
+.inv { display:block; }
+.inv-head { text-align: center; margin-bottom: 18px; }
+.inv-h1 {
+  margin: 0 0 6px;
+  font-family: var(--font-main);
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: 1px;
+  color: var(--accent-dark);
+  white-space: nowrap; /* не переносить “💦 WEDDING POOL PARTY 💃🕺” */
+}
+.inv-subtitle {
+  margin: 0 0 8px;
+  font-family: var(--font-script);
+  font-size: 22px;
+  color: var(--accent-dark);
+  opacity: 0.9;
+}
+.inv-text {
+  margin: 8px 0 0;
+  font-size: 18px;
+  line-height: 1.55;
+  white-space: normal;
+  color: var(--accent-dark);
+}
+.inv-section { margin-top: 16px; padding-top: 16px; }
+.inv-section + .inv-section { border-top: 1px solid rgba(0,0,0,0.08); }
+
+.inv-title {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: .3px;
+  color: var(--accent-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.inv-title .icon {
+  display: inline-block;
+  width: 1.2em;
+  text-align: center;
+  opacity: 0.9;
+}
+.inv-footer {
+  margin-top: 18px;
+  text-align: center;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+@media (max-width: 600px) {
+  .inv-h1 { font-size: 22px; }
+  .inv-subtitle { font-size: 18px; }
+  .inv-text { font-size: 16px; }
+  .inv-title { font-size: 16px; }
+}
+
+/* iOS Safari: иногда не рендерит динамический текст кнопки — рисуем через ::after */
+html.ios #rsvp-submit { position: relative; color: transparent; }
+html.ios #rsvp-submit::after {
+  content: attr(data-label);
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  color: var(--accent-dark);
+  white-space: nowrap;        /* всегда в одну строку */
+  display: inline-flex;       /* центрирование текста */
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;             /* не сжимать во флексе */
+  flex-shrink: 0;
+}
+
+/* Address */
+.address-location {
+  font-weight: 600;
+  margin: 2px 0 8px;
+}
+
+.icon-btn {
+  width: var(--icon-btn-size, 40px);
+  height: var(--icon-btn-size, 40px);
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 8px;
+  background: #fff;
+  padding: 0;
+  cursor: pointer;
+}
+.icon-btn img {
+  display: block;
+  width: calc(var(--icon-btn-size, 40px) - 18px);
+  height: calc(var(--icon-btn-size, 40px) - 18px);
+}
+
+/* Центрируем внутренности секций */
+.container {
+  max-width: var(--site-max);
+  margin: 0 auto;
+}
