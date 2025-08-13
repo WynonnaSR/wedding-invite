@@ -15,6 +15,7 @@
 - css/style.css — стили и темы (в т.ч. фиксированная бумажная текстура)
 - js/script.js — загрузка контента, эффекты, аудио, карты, RSVP, календарь (.ics) + модальное окно помощи
 - data/text.json — весь текст контента (редактируете здесь)
+- data/config.json — настройки (Apps Script URL, флаги) и параметры события для .ics
 - data/links.json — базовые ссылки (например, Telegram)
 - map/location.json — координаты/адрес для карты
 - assets/img — изображения и иконки (в т.ч. sound-state-on/off.png, paper_texture.png)
@@ -27,6 +28,7 @@
 - Заголовок hero:
 ```json
 "header": {
+  "page_title": "Wedding Pool Party",
   "hero_countdown_label": "До встречи"
 }
 ```
@@ -149,12 +151,36 @@
 - iOS: userAgent содержит "iPhone"/"iPad"/"iPod" или (platform === "MacIntel" и navigator.maxTouchPoints > 1)
 - Desktop: userAgent содержит "Windows"/"Macintosh"/"Linux" и не содержит мобильные ключевые слова
 
-Настройка события для .ics (js/script.js → CONFIG.event):
+Настройка события для .ics (data/config.json → event):
 - title — заголовок события (SUMMARY)
 - start — ISO-строка локального времени начала (например, 2025-09-13T17:45:00)
 - durationMinutes — длительность события в минутах
 - location — место проведения (LOCATION)
 - uidDomain — домен для формирования UID события (UID: <random>@uidDomain)
+
+Файл и описание .ics (data/text.json → calendar_ics):
+```json
+"calendar_ics": {
+  "filename": "donosagit_invite.ics",
+  "description_prefix": "Приглашение на свадьбу — "
+}
+```
+filename — имя скачиваемого .ics файла; description_prefix — добавляется перед SUMMARY в DESCRIPTION.
+
+Настройки (data/config.json):
+```json
+{
+  "appsScriptUrl": "https://script.google.com/macros/s/…/exec",
+  "faqAnswerOptionsEnabled": false,
+  "event": {
+    "title": "ДОНО & САГИТ — Свадебная вечеринка",
+    "start": "2025-09-13T17:45:00",
+    "durationMinutes": 300,
+    "location": "Ташкент Малая кольцевая дорога, 70",
+    "uidDomain": "donosagit.example.local"
+  }
+}
+```
 
 Известные ограничения:
 - Встроенные браузеры приложений (Telegram/Instagram) могут блокировать скачивание .ics. Поэтому модалка подсказывает открыть сайт во внешнем браузере (Safari/Chrome) и повторить действие.
@@ -228,24 +254,10 @@ function doPost(e) {
 
 4) В js/script.js пропишите URL в CONFIG.appsScriptUrl. Отправка формы идёт через FormData и mode: no-cors (обходит CORS). Успех показывается, если запрос не упал по сети.
 
-## Конфигурация (js/script.js)
+## Конфигурация
 
-В файле объявлен CONFIG (пример):
-
-```javascript
-const CONFIG = {
-  appsScriptUrl: "https://script.google.com/macros/s/…/exec",
-  faqAnswerOptionsEnabled: false, // включить селектор “вариантов ответов” в FAQ при answers > 1
-  audio: { volume: 0.5 },         // громкость 0..1
-  event: {
-    title: "ДОНО & САГИТ — Свадебная вечеринка",
-    start: "2025-09-13T17:45:00", // локальное время ISO
-    durationMinutes: 300,
-    location: "Ташкент Малая кольцевая дорога, 70",
-    uidDomain: "donosagit.example.local"
-  }
-};
-```
+CONFIG подгружается из JSON:
+- data/config.json — appsScriptUrl, faqAnswerOptionsEnabled, event
 
 ## Фон и тема
 
