@@ -334,7 +334,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   /* ===== CALENDAR (.ics) ===== */
-  el('#calendar-btn').addEventListener('click', generateICS);
+  el('#calendar-btn').addEventListener('click', (e) => {
+    generateICS();
+    openCalHelpModal();
+  });
 
   // Синхронизация размера кнопки звука с высотой кнопки календаря
   const calBtn = el('#calendar-btn');
@@ -468,6 +471,60 @@ document.addEventListener('DOMContentLoaded', async () => {
   const footerCreditEl = el('#footer-credit');
   if (footerCreditEl && data?.footer?.credit) {
     footerCreditEl.innerHTML = linkifyHandles(data.footer.credit, tgBase);
+  }
+
+  /* ===== CALENDAR HELP MODAL ===== */
+  function getDeviceType() {
+    const ua = navigator.userAgent || '';
+    const platform = navigator.platform || '';
+    if (/android/i.test(ua)) return 'android';
+    if (/iphone|ipad|ipod/i.test(ua)) return 'ios';
+    if (platform === 'MacIntel' && navigator.maxTouchPoints > 1) return 'ios';
+    if (/windows|macintosh|linux/i.test(ua)) return 'desktop';
+    return 'desktop';
+  }
+  function fillCalHelpModalText(data) {
+    const titleEl = el('#cal-help-title');
+    const contentEl = el('#cal-help-content');
+    const okBtn = el('#cal-help-ok');
+    const dev = getDeviceType();
+    const ch = data?.calendar_help || {};
+    if (titleEl) titleEl.textContent = ch.title || 'Как добавить в календарь';
+    if (okBtn) okBtn.textContent = ch.button_ok || 'Понятно';
+    let text = ch[dev] || ch.desktop || '';
+    // preserve newlines as paragraphs
+    if (contentEl) contentEl.innerHTML = (text || '')
+      .split('\n\n')
+      .map(p => `<p>${escapeHtml(p).replace(/\n/g,'<br>')}</p>`)
+      .join('');
+  }
+  function openCalHelpModal() {
+    const modal = el('#calendar-help');
+    if (!modal) return;
+    // Ensure text is filled with current data
+    fillCalHelpModalText(data);
+    modal.setAttribute('aria-hidden', 'false');
+    const ok = el('#cal-help-ok');
+    if (ok) setTimeout(()=> ok.focus(), 0);
+  }
+  function closeCalHelpModal() {
+    const modal = el('#calendar-help');
+    if (!modal) return;
+    modal.setAttribute('aria-hidden', 'true');
+  }
+  // delegate close actions
+  const calModal = el('#calendar-help');
+  if (calModal) {
+    calModal.addEventListener('click', (e)=>{
+      const target = e.target;
+      if (target.matches('[data-close]')) closeCalHelpModal();
+    });
+    const okBtn = el('#cal-help-ok');
+    if (okBtn) okBtn.addEventListener('click', closeCalHelpModal);
+    // Esc to close
+    document.addEventListener('keydown', (e)=>{
+      if (e.key === 'Escape' && calModal.getAttribute('aria-hidden') === 'false') closeCalHelpModal();
+    });
   }
 });
 

@@ -198,6 +198,19 @@
     <source src="assets/audio/background.m4a" type="audio/mp4" />
   </audio>
 
+  <!-- ===== CALENDAR HELP MODAL ===== -->
+  <div id="calendar-help" class="modal" aria-hidden="true">
+    <div class="modal__backdrop" data-close="true"></div>
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="cal-help-title">
+      <button type="button" class="modal__close" aria-label="Закрыть" data-close="true">×</button>
+      <h3 id="cal-help-title" class="modal__title"></h3>
+      <div id="cal-help-content" class="modal__content"></div>
+      <div class="modal__actions">
+        <button id="cal-help-ok" type="button" class="btn"></button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== SCRIPTS ===== -->
   <script src="js/script.js" defer></script>
 </body>

@@ -710,3 +710,28 @@ html.ios #rsvp-submit::after {
   max-width: var(--site-max);
   margin: 0 auto;
 }
+
+/* ===== MODAL (generic) ===== */
+.modal { position: fixed; inset: 0; z-index: 200; display: none; }
+.modal[aria-hidden="false"] { display: block; }
+.modal__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(2px); }
+.modal__dialog {
+  position: relative;
+  margin: 10vh auto 0;
+  max-width: 560px;
+  width: calc(100vw - 32px);
+  background: #fff;
+  color: var(--accent-dark);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  padding: 18px 16px 14px;
+}
+.modal__title { margin: 0 0 8px; font-family: var(--font-main); font-size: 20px; }
+.modal__content { font-size: 15px; line-height: 1.5; }
+.modal__content ul { margin: 6px 0 10px 18px; padding: 0; }
+.modal__actions { display: flex; justify-content: flex-end; padding-top: 8px; }
+.modal__close {
+  position: absolute; right: 8px; top: 6px;
+  width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.12);
+  background: #fff; cursor: pointer; font-size: 18px; line-height: 30px;
+}

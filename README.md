@@ -13,7 +13,7 @@
 Структура:
 - index.html — разметка разделов (hero, invite, schedule, photo, rsvp, faq, address, footer)
 - css/style.css — стили и темы (в т.ч. фиксированная бумажная текстура)
-- js/script.js — загрузка контента, эффекты, аудио, карты, RSVP
+- js/script.js — загрузка контента, эффекты, аудио, карты, RSVP, календарь (.ics) + модальное окно помощи
 - data/text.json — весь текст контента (редактируете здесь)
 - data/links.json — базовые ссылки (например, Telegram)
 - map/location.json — координаты/адрес для карты
@@ -111,6 +111,18 @@
 }
 ```
 
+— Подсказки для календаря (device-specific):
+```json
+"calendar_help": {
+  "title": "Как добавить в календарь",
+  "button_ok": "Понятно",
+  "android": "…инструкция для Android…",
+  "ios": "…инструкция для iOS…",
+  "desktop": "…инструкция для ПК…"
+}
+```
+Точные тексты уже добавлены в data/text.json и могут быть отредактированы там.
+
 ## Ссылки (data/links.json)
 
 ```json
@@ -120,6 +132,34 @@
 ```
 
 В тексте фото-блока все @username (5–32 символов) превращаются в ссылки на https://t.me/username.
+
+## Добавление в календарь (.ics) и модальное окно помощи
+
+- В навбаре есть кнопка «Добавить в календарь». При клике генерируется .ics-файл (через Blob) с данными события и запускается его скачивание.
+- Сразу после этого показывается модальное окно с краткой инструкцией, зависящей от устройства (Android / iOS / ПК). Тексты берутся из data/text.json → calendar_help.
+
+Где править:
+- Тексты: data/text.json → calendar_help.title, .button_ok, .android, .ios, .desktop.
+- Логика/детекция устройства и показ модалки: js/script.js.
+- Разметка модалки: index.html (контейнер с id="calendar-help", внутри — плейсхолдеры заголовка, контента и кнопки).
+- Стили модалки: css/style.css (классы .modal, .modal__dialog, .modal__backdrop, .modal__title, .modal__content, .modal__actions, .modal__close).
+
+Детекция устройства (в коде):
+- Android: userAgent содержит "Android"
+- iOS: userAgent содержит "iPhone"/"iPad"/"iPod" или (platform === "MacIntel" и navigator.maxTouchPoints > 1)
+- Desktop: userAgent содержит "Windows"/"Macintosh"/"Linux" и не содержит мобильные ключевые слова
+
+Настройка события для .ics (js/script.js → CONFIG.event):
+- title — заголовок события (SUMMARY)
+- start — ISO-строка локального времени начала (например, 2025-09-13T17:45:00)
+- durationMinutes — длительность события в минутах
+- location — место проведения (LOCATION)
+- uidDomain — домен для формирования UID события (UID: <random>@uidDomain)
+
+Известные ограничения:
+- Встроенные браузеры приложений (Telegram/Instagram) могут блокировать скачивание .ics. Поэтому модалка подсказывает открыть сайт во внешнем браузере (Safari/Chrome) и повторить действие.
+- iOS/Safari обычно сразу открывает окно добавления события, без явного скачивания файла.
+- На ПК .ics следует открыть двойным кликом — календарь предложит добавить событие.
 
 ## Карта
 
@@ -196,7 +236,14 @@ function doPost(e) {
 const CONFIG = {
   appsScriptUrl: "https://script.google.com/macros/s/…/exec",
   faqAnswerOptionsEnabled: false, // включить селектор “вариантов ответов” в FAQ при answers > 1
-  audio: { volume: 0.5 }          // громкость 0..1
+  audio: { volume: 0.5 },         // громкость 0..1
+  event: {
+    title: "ДОНО & САГИТ — Свадебная вечеринка",
+    start: "2025-09-13T17:45:00", // локальное время ISO
+    durationMinutes: 300,
+    location: "Ташкент Малая кольцевая дорога, 70",
+    uidDomain: "donosagit.example.local"
+  }
 };
 ```
 
