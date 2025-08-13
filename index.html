@@ -4,7 +4,7 @@
   <!-- ===== HEAD: META, FONTS, GLOBAL CSS ===== -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Wedding Pool Party</title>
+  <title>Party</title>
   <!-- Preload local fonts to avoid FOIT/FOUT -->
   <link rel="preload" href="fonts/CormorantGaramond-VariableFont_wght.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="preload" href="fonts/GreatVibes-Regular.ttf" as="font" type="font/ttf" crossorigin>
@@ -13,28 +13,27 @@
 <body>
   <!-- ===== NAV SECTION ===== -->
   <nav id="main-nav" class="nav">
-    <button id="burger" aria-label="Открыть меню" class="burger" aria-expanded="false">
+    <button id="burger" aria-label="" class="burger" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
 
     <div class="nav-right">
-      <!-- Inline controls: sound toggle + calendar -->
-      <button id="audio-toggle" class="icon-btn" type="button" aria-pressed="false" aria-label="Включить звук">
+      <button id="audio-toggle" class="icon-btn" type="button" aria-pressed="false" aria-label="">
         <img id="audio-icon" src="assets/img/sound-state-off.png" alt="" width="24" height="24" />
       </button>
-      <button id="calendar-btn" class="btn small">Добавить в календарь</button>
+      <button id="calendar-btn" class="btn small"></button>
     </div>
 
     <div class="nav-overlay" id="nav-overlay" aria-hidden="true">
       <div class="menu-panel">
         <ul>
-          <li><a href="#hero">Главная</a></li>
-          <li><a href="#invite">Приглашение</a></li>
-          <li><a href="#schedule">Расписание</a></li>
-          <li><a href="#photo">Фото</a></li>
-          <li><a href="#rsvp">Дайте знать, что будете</a></li>
-          <li><a href="#faq">FAQ</a></li>
-          <li><a href="#address">Адрес</a></li>
+          <li><a id="nav-home" href="#hero"></a></li>
+          <li><a id="nav-invite" href="#invite"></a></li>
+          <li><a id="nav-schedule" href="#schedule"></a></li>
+          <li><a id="nav-photo" href="#photo"></a></li>
+          <li><a id="nav-rsvp" href="#rsvp"></a></li>
+          <li><a id="nav-faq" href="#faq"></a></li>
+          <li><a id="nav-address" href="#address"></a></li>
         </ul>
       </div>
     </div>
@@ -42,13 +41,11 @@
 
   <!-- ===== MAIN CONTENT ===== -->
   <main id="main">
-    <!-- ===== HERO SECTION (multistep intro) ===== -->
+  <!-- ===== HERO SECTION ===== -->
     <div id="hero-steps" class="hero-steps">
-      <!-- Fixed hero background (single instance for all steps) -->
       <div class="hero-bg-fixed" aria-hidden="true"></div>
 
-      <section class="hero-step" data-step="1">
-        <!-- Step 1: Names -->
+  <section class="hero-step" data-step="1">
         <div class="hero-step-content" id="hero-step-1">
           <h1 class="hero-large" id="hero-line1"></h1>
           <p class="hero-script hero-and" id="hero-line2">
@@ -60,8 +57,7 @@
         </div>
       </section>
 
-      <section class="hero-step" data-step="2">
-        <!-- Step 2: Party lines -->
+  <section class="hero-step" data-step="2">
         <div class="hero-step-content" id="hero-step-2">
           <h1 class="hero-large" id="party-line1"></h1>
           <h1 class="hero-large" id="party-line2"></h1>
@@ -69,18 +65,15 @@
         </div>
       </section>
 
-      <section class="hero-step" data-step="3">
-        <!-- Step 3: Note + Date -->
+  <section class="hero-step" data-step="3">
         <div class="hero-step-content" id="hero-step-3">
           <h2 class="hero-script" id="hero-meta-note"></h2>
           <h1 class="hero-large" id="hero-date-full"></h1>
         </div>
       </section>
 
-      <section class="hero-step" data-step="5" id="hero">
-        <!-- Step 5: Main screen -->
+  <section class="hero-step" data-step="5" id="hero">
         <div class="hero-step-content" id="hero-step-5">
-          <!-- Current main screen content -->
           <h1 class="hero-large" id="hero-main-line1"></h1>
           <p class="hero-script hero-and" id="hero-main-line2">
             <span class="line"></span>
@@ -96,14 +89,13 @@
               <span id="hero-main-date-year" class="hero-large"></span>
             </span>
           </div>
-          <!-- Countdown first, label second (compact) -->
           <div id="countdown" class="hero-countdown" aria-live="polite"></div>
           <div id="countdown-label" class="hero-countdown-label"></div>
         </div>
       </section>
     </div>
 
-    <!-- ===== PAPER TEXTURE LAYER (fixed, below hero) ===== -->
+  <!-- ===== PAPER TEXTURE LAYER ===== -->
     <div class="paper-bg-fixed" aria-hidden="true"></div>
 
     <!-- ===== INVITE SECTION ===== -->
