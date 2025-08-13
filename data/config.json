@@ -1,0 +1,11 @@
+{
+  "appsScriptUrl": "https://script.google.com/macros/s/AKfycbzTAZlCvjIwWBz8nYTvsUVaakt783uDu3BIsP0wYr36Cqy7X2rPHbWR0YlV70qu2BGy/exec",
+  "faqAnswerOptionsEnabled": false,
+  "event": {
+    "title": "ДОНО & САГИТ — Свадебная вечеринка",
+    "start": "2025-09-13T17:45:00",
+    "durationMinutes": 300,
+    "location": "Ташкент Малая кольцевая дорога, 70a",
+    "uidDomain": "donosagit.example.local"
+  }
+}
