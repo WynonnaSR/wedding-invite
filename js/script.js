@@ -1,21 +1,21 @@
 /* ===== SCRIPT: CONFIG, HELPERS, SECTION LOGIC ===== */
 
-const CONFIG = {
-  appsScriptUrl: "https://script.google.com/macros/s/AKfycbzTAZlCvjIwWBz8nYTvsUVaakt783uDu3BIsP0wYr36Cqy7X2rPHbWR0YlV70qu2BGy/exec",
+let CONFIG = {
+  appsScriptUrl: "",
   faqAnswerOptionsEnabled: false,
   event: {
-    title: "ДОНО & САГИТ — Свадебная вечеринка",
-    start: "2025-09-13T17:45:00", // ISO (локальное время)
-    durationMinutes: 300,
-    location: "Ташкент Малая кольцевая дорога, 70a",
-    uidDomain: "donosagit.example.local"
+    title: "",
+    start: "", // ISO (локальное время)
+    durationMinutes: 0,
+    location: "",
+    uidDomain: ""
   }
 };
 
 // ----- DATA LOADERS -----
 async function loadText() {
   const res = await fetch('data/text.json');
-  if (!res.ok) throw new Error('Не удалось загрузить data/text.json');
+  if (!res.ok) throw new Error('text.json load failed');
   return res.json();
 }
 
@@ -40,13 +40,51 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.scrollTo({ top: 0, behavior: 'auto' });
 
   let data;
+  try { data = await loadText(); }
+  catch (e) { console.error(e); return; }
+  window.__TEXT__ = data;
+  // Load CONFIG (appsScript, flags, event)
   try {
-    data = await loadText();
+    const cfgRes = await fetch('data/config.json');
+    const cfgJson = cfgRes.ok ? await cfgRes.json() : {};
+    CONFIG = {
+      appsScriptUrl: cfgJson.appsScriptUrl || "",
+      faqAnswerOptionsEnabled: Boolean(cfgJson.faqAnswerOptionsEnabled),
+      event: {
+        title: cfgJson.event?.title || "",
+        start: cfgJson.event?.start || "",
+        durationMinutes: Number((cfgJson.event?.durationMinutes) || 0),
+        location: cfgJson.event?.location || "",
+        uidDomain: cfgJson.event?.uidDomain || ""
+      }
+    };
   } catch (e) {
-    console.error(e);
-    alert('Ошибка загрузки data/text.json. Проверьте, что в JSON нет комментариев и он валиден.');
-    return;
+    console.error('CONFIG load failed', e);
   }
+
+  // Page title from JSON (optional)
+  try {
+    const t = data?.header?.page_title;
+    if (t) { document.title = t; }
+  } catch(_) {}
+
+  // NAV/UI labels
+  const navLabels = data.nav || {};
+  const ui = data.ui || {};
+  const rsvpStatus = ui.rsvp_status || {};
+  const errText = ui.errors || {};
+  const navMap = {
+    '#nav-home': navLabels.home,
+    '#nav-invite': navLabels.invite,
+    '#nav-schedule': navLabels.schedule,
+    '#nav-photo': navLabels.photo,
+    '#nav-rsvp': navLabels.rsvp,
+    '#nav-faq': navLabels.faq,
+    '#nav-address': navLabels.address
+  };
+  Object.entries(navMap).forEach(([sel, txt]) => { const n = el(sel); if (n && txt) n.textContent = txt; });
+  const calBtnEl = el('#calendar-btn'); if (calBtnEl) calBtnEl.textContent = (ui.calendar_button || '');
+  const burgerBtn = el('#burger'); if (burgerBtn) burgerBtn.setAttribute('aria-label', ui.burger_open || '');
 
   /* ===== HERO SECTION (multistep) ===== */
   // Step 1: Имена
@@ -186,7 +224,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   /* ===== ADDRESS SECTION ===== */
   const addr = data.address || {};
-  el('#address-title').textContent    = addr.title || 'Адрес';
+  el('#address-title').textContent    = addr.title || '';
   el('#address-location').textContent = addr.location || '';
   el('#address-text').textContent     = addr.description || '';
   const mapInfo = await (await fetch('map/location.json')).json();
@@ -208,13 +246,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const yBtn = el('#map-open-yandex');
   if (gBtn) {
     gBtn.href = gHref;
-    const label = addr.mapLabels?.google || 'Открыть в Google Maps';
+    const label = addr.mapLabels?.google || '';
     gBtn.setAttribute('aria-label', label);
     gBtn.setAttribute('title', label);
   }
   if (yBtn) {
     yBtn.href = yHref;
-    const label = addr.mapLabels?.yandex || 'Открыть в Яндекс.Картах';
+    const label = addr.mapLabels?.yandex || '';
     yBtn.setAttribute('aria-label', label);
     yBtn.setAttribute('title', label);
   }
@@ -228,7 +266,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const faqItems = Array.isArray(faqData.items) ? faqData.items
                    : (Array.isArray(data.faq) ? data.faq : []);
   const faqTitleEl = el('#faq-title');
-  if (faqTitleEl) faqTitleEl.textContent = faqData.title || 'FAQ';
+  if (faqTitleEl) faqTitleEl.textContent = faqData.title || '';
 
   faqItems.forEach(item => {
     const details = document.createElement('details');
@@ -243,12 +281,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     details.appendChild(p);
 
     // селектор вариантов только если включено и есть >1 ответа
-    if (CONFIG.faqAnswerOptionsEnabled && answers.length > 1) {
+  if (CONFIG.faqAnswerOptionsEnabled && answers.length > 1) {
       const sel = document.createElement('select');
       sel.className = 'faq-variant-select';
       answers.forEach((a,i)=> {
         const opt = document.createElement('option');
-        opt.value = i; opt.text = `Вариант ${i+1}`;
+    const pref = ui.faq_variant_prefix || '';
+    opt.value = i; opt.text = `${pref}${i+1}`;
         sel.appendChild(opt);
       });
       sel.addEventListener('change', (e)=> {
@@ -262,7 +301,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   /* ===== RSVP SECTION ===== */
   // Заголовок секции
-  el('#rsvp-title').textContent = data.rsvp_labels.title || 'RSVP';
+  el('#rsvp-title').textContent = data.rsvp_labels.title || '';
   // подписи полей
   el('#rsvp-name-label').textContent = data.rsvp_labels.firstName || '';
   el('#rsvp-lastname-label').textContent = data.rsvp_labels.lastName || '';
@@ -270,8 +309,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // легенда группы «приду/не приду» — используем заголовок как групповой лейбл
   el('#rsvp-attend-label').textContent = data.rsvp_labels.title || '';
   // радио-подписи
-  el('#rsvp-attend-yes').textContent = data.rsvp_labels.attendYes || 'Я буду!';
-  el('#rsvp-attend-no').textContent  = data.rsvp_labels.attendNo  || 'Увы, не смогу';
+  el('#rsvp-attend-yes').textContent = data.rsvp_labels.attendYes || '';
+  el('#rsvp-attend-no').textContent  = data.rsvp_labels.attendNo  || '';
   // плейсхолдеры
   el('#rsvp-form input[name="firstName"]').placeholder = data.rsvp_labels.firstNamePlaceholder || "";
   el('#rsvp-form input[name="lastName"]').placeholder  = data.rsvp_labels.lastNamePlaceholder  || "";
@@ -279,7 +318,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // текст кнопки
   const submitBtn = el('#rsvp-submit');
   if (submitBtn) {
-    const btnText = data.rsvp_labels.button || 'Отправить';
+    const btnText = data.rsvp_labels.button || '';
     submitBtn.textContent = btnText;
     // для iOS-фикса дублируем текст в data-атрибут
     submitBtn.setAttribute('data-label', btnText);
@@ -290,6 +329,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   burger.addEventListener('click', ()=> {
     const open = navOverlay.classList.toggle('open');
     burger.setAttribute('aria-expanded', String(open));
+    burger.setAttribute('aria-label', open ? (ui.burger_close || '') : (ui.burger_open || ''));
   });
 
   /* ===== AUDIO TOGGLE ===== */
@@ -311,7 +351,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!audioIcon || !audioBtn) return;
     audioIcon.src = isOn ? ICONS.on : ICONS.off;
     audioBtn.setAttribute('aria-pressed', isOn ? 'true' : 'false');
-    audioBtn.setAttribute('aria-label', isOn ? 'Выключить звук' : 'Включить звук');
+    audioBtn.setAttribute('aria-label', isOn ? (ui.audio_on || '') : (ui.audio_off || ''));
   };
 
   if (audio && audioBtn) {
@@ -361,29 +401,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const firstName = formData.get('firstName')?.toString().trim();
     const lastName  = formData.get('lastName')?.toString().trim();
-    if (!firstName || !lastName) {
-      status.textContent = 'Пожалуйста, заполните имя и фамилию.';
-      return;
-    }
+  if (!firstName || !lastName) { status.textContent = rsvpStatus.fill_names || ''; return; }
     if (!CONFIG.appsScriptUrl) {
-      status.textContent = 'RSVP: локально — сохранено. Настройте appsScriptUrl.';
+  status.textContent = rsvpStatus.local_saved || '';
       console.log('RSVP payload:', Object.fromEntries(formData.entries()));
       return;
     }
 
     try {
-      status.textContent = 'Отправляем...';
+  status.textContent = rsvpStatus.sending || '';
       await fetch(CONFIG.appsScriptUrl, {
         method: 'POST',
         mode: 'no-cors',          // обходим CORS
         body: formData            // form-data; на сервере читаем e.parameter
       });
-      // Оpaque-ответ: считаем успешным, если сеть не бросила исключение
-      status.textContent = 'Спасибо! Ответ записан.';
+  status.textContent = rsvpStatus.ok || '';
       form.reset();
     } catch (err) {
       console.error(err);
-      status.textContent = 'Ошибка сети. Попробуйте позже.';
+  status.textContent = rsvpStatus.network_error || '';
     }
   });
 
@@ -445,11 +481,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   updatePaperBg();
 
   // Линковка всех @username (5–32 символов [A-Za-z0-9_]) на базу из links.json
-  function linkifyHandles(text, base = "https://t.me/") {
+  function linkifyHandles(text, base = "") {
     const safe = escapeHtml(text || "");
     const re = /(^|[\s(])@([A-Za-z0-9_]{5,32})\b/g;
     return safe.replace(re, (m, pre, user) =>
-      `${pre}<a class="tg-handle" href="${base}${user}" target="_blank" rel="noopener">@${user}</a>`
+      base ? `${pre}<a class="tg-handle" href="${base}${user}" target="_blank" rel="noopener">@${user}</a>` : `${pre}@${user}`
     );
   }
 
@@ -459,7 +495,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (resp.ok) links = await resp.json();
   } catch (_) {}
 
-  const tgBase = links?.telegram?.base || 'https://t.me/';
+  const tgBase = links?.telegram?.base || '';
 
   // PHOTO: авто-линкуем @ник в тексте
   const photoTextEl = document.querySelector('#photo-text');
@@ -489,8 +525,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const okBtn = el('#cal-help-ok');
     const dev = getDeviceType();
     const ch = data?.calendar_help || {};
-    if (titleEl) titleEl.textContent = ch.title || 'Как добавить в календарь';
-    if (okBtn) okBtn.textContent = ch.button_ok || 'Понятно';
+  if (titleEl) titleEl.textContent = ch.title || '';
+  if (okBtn) okBtn.textContent = ch.button_ok || '';
     let text = ch[dev] || ch.desktop || '';
     // preserve newlines as paragraphs
     if (contentEl) contentEl.innerHTML = (text || '')
@@ -528,7 +564,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-/* ===== COUNTDOWN ===== */
+  /* ===== COUNTDOWN ===== */
 function startCountdown(isoString, elNode) {
   const target = new Date(isoString);
   if (isNaN(target)) { elNode.innerHTML = ''; return; }
@@ -536,7 +572,8 @@ function startCountdown(isoString, elNode) {
     const now = new Date();
     const diff = target - now;
     if (diff <= 0) {
-      elNode.innerHTML = '<div class="count-row"><span>0</span><span>0</span><span>0</span><span>0</span></div><div class="count-labels"><span>Дней</span><span>Часов</span><span>Минут</span><span>Секунд</span></div>';
+      const cl = (window.__TEXT__?.ui?.countdown_labels) || {};
+      elNode.innerHTML = `<div class="count-row"><span>0</span><span>0</span><span>0</span><span>0</span></div><div class="count-labels"><span>${cl.days||''}</span><span>${cl.hours||''}</span><span>${cl.minutes||''}</span><span>${cl.seconds||''}</span></div>`;
       clearInterval(timer);
       return;
     }
@@ -544,7 +581,8 @@ function startCountdown(isoString, elNode) {
     const h = Math.floor((diff / (1000*60*60)) % 24);
     const m = Math.floor((diff / (1000*60)) % 60);
     const s = Math.floor((diff / 1000) % 60);
-    elNode.innerHTML = `
+  const cl = (window.__TEXT__?.ui?.countdown_labels) || {};
+  elNode.innerHTML = `
       <div class="count-row">
         <span>${d}</span>
         <span>${h.toString().padStart(2,'0')}</span>
@@ -552,10 +590,10 @@ function startCountdown(isoString, elNode) {
         <span>${s.toString().padStart(2,'0')}</span>
       </div>
       <div class="count-labels">
-        <span>Дней</span>
-        <span>Часов</span>
-        <span>Минут</span>
-        <span>Секунд</span>
+    <span>${cl.days||''}</span>
+    <span>${cl.hours||''}</span>
+    <span>${cl.minutes||''}</span>
+    <span>${cl.seconds||''}</span>
       </div>
     `;
   }
@@ -578,6 +616,8 @@ function generateICS() {
   const start = new Date(ev.start);
   const end = new Date(start.getTime() + (ev.durationMinutes || 180)*60000);
   const uidStr = `${uid()}@${ev.uidDomain || 'local'}`;
+  const prefix = (window.__TEXT__?.calendar_ics?.description_prefix) || '';
+  const fname = (window.__TEXT__?.calendar_ics?.filename) || 'event.ics';
   const ics =
 `BEGIN:VCALENDAR
 VERSION:2.0
@@ -589,7 +629,7 @@ DTSTAMP:${formatDateForICS(new Date())}
 DTSTART:${formatDateForICS(start)}
 DTEND:${formatDateForICS(end)}
 SUMMARY:${ev.title}
-DESCRIPTION:Приглашение на свадьбу — ${ev.title}
+DESCRIPTION:${prefix}${ev.title}
 LOCATION:${ev.location}
 END:VEVENT
 END:VCALENDAR`;
@@ -597,7 +637,7 @@ END:VCALENDAR`;
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'donosagit_invite.ics';
+  a.download = fname;
   document.body.appendChild(a);
   a.click();
   a.remove();
