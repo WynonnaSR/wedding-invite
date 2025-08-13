@@ -1,22 +1,24 @@
 <!doctype html>
 <html lang="ru">
 <head>
+  <!-- ===== HEAD: META, FONTS, GLOBAL CSS ===== -->
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Wedding Pool Party</title>
-  <!-- заменяем preload на реальные шрифты -->
+  <!-- Preload local fonts to avoid FOIT/FOUT -->
   <link rel="preload" href="fonts/CormorantGaramond-VariableFont_wght.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="preload" href="fonts/GreatVibes-Regular.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+  <!-- ===== NAV SECTION ===== -->
   <nav id="main-nav" class="nav">
     <button id="burger" aria-label="Открыть меню" class="burger" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
 
     <div class="nav-right">
-      <!-- В навигации (замените существующий #audio-toggle) -->
+      <!-- Inline controls: sound toggle + calendar -->
       <button id="audio-toggle" class="icon-btn" type="button" aria-pressed="false" aria-label="Включить звук">
         <img id="audio-icon" src="assets/img/sound-state-off.png" alt="" width="24" height="24" />
       </button>
@@ -38,14 +40,15 @@
     </div>
   </nav>
 
+  <!-- ===== MAIN CONTENT ===== -->
   <main id="main">
-    <!-- HERO MULTISTEP -->
+    <!-- ===== HERO SECTION (multistep intro) ===== -->
     <div id="hero-steps" class="hero-steps">
-      <!-- единый фиксированный фон героя -->
+      <!-- Fixed hero background (single instance for all steps) -->
       <div class="hero-bg-fixed" aria-hidden="true"></div>
 
       <section class="hero-step" data-step="1">
-        <!-- фон УБРАН -->
+        <!-- Step 1: Names -->
         <div class="hero-step-content" id="hero-step-1">
           <h1 class="hero-large" id="hero-line1"></h1>
           <p class="hero-script hero-and" id="hero-line2">
@@ -58,7 +61,7 @@
       </section>
 
       <section class="hero-step" data-step="2">
-        <!-- фон УБРАН -->
+        <!-- Step 2: Party lines -->
         <div class="hero-step-content" id="hero-step-2">
           <h1 class="hero-large" id="party-line1"></h1>
           <h1 class="hero-large" id="party-line2"></h1>
@@ -67,7 +70,7 @@
       </section>
 
       <section class="hero-step" data-step="3">
-        <!-- фон УБРАН -->
+        <!-- Step 3: Note + Date -->
         <div class="hero-step-content" id="hero-step-3">
           <h2 class="hero-script" id="hero-meta-note"></h2>
           <h1 class="hero-large" id="hero-date-full"></h1>
@@ -75,9 +78,9 @@
       </section>
 
       <section class="hero-step" data-step="5" id="hero">
-        <!-- фон УБРАН -->
+        <!-- Step 5: Main screen -->
         <div class="hero-step-content" id="hero-step-5">
-          <!-- Текущий главный экран -->
+          <!-- Current main screen content -->
           <h1 class="hero-large" id="hero-main-line1"></h1>
           <p class="hero-script hero-and" id="hero-main-line2">
             <span class="line"></span>
@@ -93,25 +96,24 @@
               <span id="hero-main-date-year" class="hero-large"></span>
             </span>
           </div>
-          <!-- БЫЛО: сначала label, потом таймер -->
-          <!-- Станет: сначала таймер, потом уменьшенный label -->
+          <!-- Countdown first, label second (compact) -->
           <div id="countdown" class="hero-countdown" aria-live="polite"></div>
           <div id="countdown-label" class="hero-countdown-label"></div>
         </div>
       </section>
     </div>
 
-    <!-- фиксированный слой бумажной текстуры для всего контента ниже hero -->
+    <!-- ===== PAPER TEXTURE LAYER (fixed, below hero) ===== -->
     <div class="paper-bg-fixed" aria-hidden="true"></div>
 
-    <!-- INVITE -->
+    <!-- ===== INVITE SECTION ===== -->
     <section id="invite" class="paper-section section">
       <div class="container">
         <article id="invite-text" class="card"></article>
       </div>
     </section>
 
-    <!-- SCHEDULE -->
+    <!-- ===== SCHEDULE SECTION ===== -->
     <section id="schedule" class="section schedule-section">
       <div class="container">
         <h2 id="schedule-title" class="section-title"></h2>
@@ -119,7 +121,7 @@
       </div>
     </section>
 
-    <!-- PHOTO -->
+    <!-- ===== PHOTO SECTION ===== -->
     <section id="photo" class="section photo-section">
       <div class="container">
         <h2 class="section-title" id="photo-title"></h2>
@@ -127,7 +129,7 @@
       </div>
     </section>
 
-    <!-- RSVP -->
+    <!-- ===== RSVP SECTION ===== -->
     <section id="rsvp" class="section rsvp-section">
       <div class="container">
         <h2 id="rsvp-title" class="section-title"></h2>
@@ -157,7 +159,7 @@
       </div>
     </section>
 
-    <!-- FAQ -->
+    <!-- ===== FAQ SECTION ===== -->
     <section id="faq" class="section faq-section">
       <div class="container">
         <h2 id="faq-title" class="section-title"></h2>
@@ -165,7 +167,7 @@
       </div>
     </section>
 
-    <!-- ADDRESS -->
+    <!-- ===== ADDRESS SECTION ===== -->
     <section id="address" class="section address-section">
       <div class="container">
         <h2 id="address-title" class="section-title"></h2>
@@ -181,6 +183,7 @@
       </div>
     </section>
 
+    <!-- ===== FOOTER SECTION ===== -->
     <footer class="footer">
       <div class="container">
         <p id="footer-slogan"></p>
@@ -189,12 +192,13 @@
     </footer>
   </main>
 
-  <!-- audio (not autoplay) -->
+  <!-- ===== AUDIO (not autoplay) ===== -->
   <audio id="bg-audio" preload="none" loop crossorigin="anonymous">
     <source src="assets/audio/background.mp3" type="audio/mpeg" />
     <source src="assets/audio/background.m4a" type="audio/mp4" />
   </audio>
 
+  <!-- ===== SCRIPTS ===== -->
   <script src="js/script.js" defer></script>
 </body>
 </html>

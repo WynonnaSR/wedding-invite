@@ -1,13 +1,4 @@
-/* script.js
-   Комментарии: здесь:
-   - загружаем тексты из /data/text.json
-   - считаем обратный отсчёт
-   - реализуем IntersectionObserver для появления секций
-   - реализуем параллакс и overlay при скролле
-   - управляем аудио (включение только по клику)
-   - формируем .ics и инициируем скачивание
-   - шлём RSVP на Google Apps Script endpoint (URL положим в config)
-*/
+/* ===== SCRIPT: CONFIG, HELPERS, SECTION LOGIC ===== */
 
 const CONFIG = {
   appsScriptUrl: "https://script.google.com/macros/s/AKfycbzTAZlCvjIwWBz8nYTvsUVaakt783uDu3BIsP0wYr36Cqy7X2rPHbWR0YlV70qu2BGy/exec",
@@ -21,21 +12,24 @@ const CONFIG = {
   }
 };
 
+// ----- DATA LOADERS -----
 async function loadText() {
   const res = await fetch('data/text.json');
   if (!res.ok) throw new Error('Не удалось загрузить data/text.json');
   return res.json();
 }
 
+// ----- DOM HELPERS -----
 function el(q) { return document.querySelector(q); }
 function els(q) { return Array.from(document.querySelectorAll(q)); }
 
-// helper: переводит \n в <br> с безопасным HTML
+// Safe: переводит \n в <br>
 function nl2brSafe(str = "") {
   return escapeHtml(str).replace(/\n/g, '<br>');
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  /* ===== BOOTSTRAP / GLOBAL INIT ===== */
   // iOS detection для CSS-фикса кнопки
   const ua = navigator.userAgent || navigator.vendor || window.opera;
   const isIOS = /iPad|iPhone|iPod/.test(ua);
@@ -54,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // HERO MULTISTEP
+  /* ===== HERO SECTION (multistep) ===== */
   // Step 1: Имена
   el('#hero-line1').textContent = data.header.hero_line1_raw || "";
   el('#hero-and-text').textContent = data.header.hero_line2_raw || "";
@@ -87,8 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   el('#countdown-label').textContent = data.header.hero_countdown_label || "";
   startCountdown(CONFIG.event.start, el('#countdown'));
 
-  // Показ шагов только после первого реального скролла
-  // ПОВЕДЕНИЕ OVERLAY: включён только когда мы прокрутились вниз (>8px) и в зоне hero
+  // Overlay в hero включается при реальном скролле (>8px) и пока блок в вьюпорте
   const stepsRoot = el('#hero-steps');
   const bgFixed = stepsRoot.querySelector('.hero-bg-fixed');
   const paperBg = el('.paper-bg-fixed');
@@ -122,7 +115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.addEventListener('resize', onScrollUpdate);
   onScrollUpdate();
 
-  // Появление текста шагов: разрешаем только когда overlayActive = true
+  // Reveal текста шагов: только когда overlayActive = true
   els('.hero-step-content').forEach((node) => {
     const obs = new IntersectionObserver((entries) => {
       entries.forEach(e => {
@@ -133,7 +126,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     obs.observe(node);
   });
 
-  // --- Invite (структурированный) ---
+  /* ===== INVITE SECTION ===== */
   function normalizeSections(inv = {}) {
     // Новый формат: sections[]
     if (Array.isArray(inv.sections)) return inv.sections.filter(s => s && (s.title || s.text));
@@ -173,10 +166,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     return `<div class="inv">${blocks.join('')}</div>`;
   }
 
-  // Рендерим Invite
+  // Render Invite
   el('#invite-text').innerHTML = renderInvite(data.invite);
 
-  // Schedule
+  /* ===== SCHEDULE SECTION ===== */
   const sc = data.schedule || {};
   el('#schedule-title').textContent = sc.title || "";
   const pre = el('#schedule-content');
@@ -187,11 +180,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     pre.textContent = sc.content || "";
   }
 
-  // Photo
+  /* ===== PHOTO SECTION ===== */
   el('#photo-title').textContent = data.photo.title;
   el('#photo-text').textContent = data.photo.text;
 
-  // Address + map
+  /* ===== ADDRESS SECTION ===== */
   const addr = data.address || {};
   el('#address-title').textContent    = addr.title || 'Адрес';
   el('#address-location').textContent = addr.location || '';
@@ -206,7 +199,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     : `https://yandex.ru/map-widget/v1/?text=${encodeURIComponent(mapInfo.query || '')}`;
   iframe.src = yEmbed;
 
-  // Кнопки: открыть в приложениях (веб-ссылки с автопереходом в апп на мобайле)
+  // Map actions: open in apps (deep-links via web)
   const gHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapInfo.query || (hasCoords ? `${lat},${lng}` : ''))}`;
   const yHref = hasCoords
     ? `https://yandex.ru/maps/?ll=${encodeURIComponent(lng)},${encodeURIComponent(lat)}&z=16&pt=${encodeURIComponent(lng)},${encodeURIComponent(lat)},pm2rdm`
@@ -226,10 +219,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     yBtn.setAttribute('title', label);
   }
 
-  // Footer slogan
+  /* ===== FOOTER SECTION ===== */
   el('#footer-slogan').textContent = data.footer.slogan || "";
 
-  // FAQ
+  /* ===== FAQ SECTION ===== */
   const faqList = el('#faq-list');
   const faqData = data.faq || {};
   const faqItems = Array.isArray(faqData.items) ? faqData.items
@@ -267,8 +260,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     faqList.appendChild(details);
   });
 
-  // RSVP labels placeholders
-  // заголовок секции
+  /* ===== RSVP SECTION ===== */
+  // Заголовок секции
   el('#rsvp-title').textContent = data.rsvp_labels.title || 'RSVP';
   // подписи полей
   el('#rsvp-name-label').textContent = data.rsvp_labels.firstName || '';
@@ -292,14 +285,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     submitBtn.setAttribute('data-label', btnText);
   }
 
-  // NAV burger
+  /* ===== NAV SECTION ===== */
   const burger = el('#burger'), navOverlay = el('#nav-overlay');
   burger.addEventListener('click', ()=> {
     const open = navOverlay.classList.toggle('open');
     burger.setAttribute('aria-expanded', String(open));
   });
 
-  // Audio toggle (только по кнопке)
+  /* ===== AUDIO TOGGLE ===== */
   const audio = el('#bg-audio');
   const audioBtn = el('#audio-toggle');
   const audioIcon = el('#audio-icon');
@@ -340,7 +333,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setUI(false);
   }
 
-  // Calendar .ics
+  /* ===== CALENDAR (.ics) ===== */
   el('#calendar-btn').addEventListener('click', generateICS);
 
   // Синхронизация размера кнопки звука с высотой кнопки календаря
@@ -391,7 +384,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // IntersectionObserver for reveal animations
+  // Reveal animations for general sections
   const revealObserver = new IntersectionObserver((entries)=>{
     entries.forEach(e => {
       if (e.isIntersecting) {
@@ -401,20 +394,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   }, {threshold: 0.15});
   els('.fade-in, .slide-up, .card, .section-title').forEach(n => revealObserver.observe(n));
 
-  // Удаляем логику для .hero-content/.hero-bg/#hero-overlay и оставляем только поведение навбара
-  // Ранее здесь добавлялись классы и обсервер для .hero-content — эти элементы отсутствуют в верстке шагов
+  // Navbar fade-in on load
   el('.nav').classList.add('fade-in');
   setTimeout(() => {
     el('.nav').classList.add('show');
   }, 100);
 
-  // Простой хэндлер для затемнения навбара при скролле
+  // Nav darken on scroll
   window.addEventListener('scroll', ()=> {
     const nav = el('#main-nav');
     if (window.scrollY > 20) nav.classList.add('scrolled'); else nav.classList.remove('scrolled');
   }, {passive:true});
 
-  // Закрытие меню по клику вне меню
+  // Close menu on outside click
   navOverlay.addEventListener('mousedown', (e) => {
     if (!e.target.closest('.menu-panel')) {
       navOverlay.classList.remove('open');
@@ -422,7 +414,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Закрытие меню по клику на пункт навигации
+  // Close menu on nav item click
   els('.menu-panel a').forEach(link => {
     link.addEventListener('click', () => {
       navOverlay.classList.remove('open');
@@ -430,7 +422,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Показ/скрытие фиксированной текстуры бумаги при переходе в Invite и ниже
+  // Toggle paper texture when entering/leaving Invite
   function updatePaperBg() {
     if (!inviteEl || !paperBg) return;
     const r = inviteEl.getBoundingClientRect();
@@ -466,7 +458,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const tgBase = links?.telegram?.base || 'https://t.me/';
 
-  // PHOTO block: авто-линкуем @ник в тексте
+  // PHOTO: авто-линкуем @ник в тексте
   const photoTextEl = document.querySelector('#photo-text');
   if (photoTextEl && data?.photo?.text) {
     photoTextEl.innerHTML = linkifyHandles(data.photo.text, tgBase);
@@ -479,9 +471,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-/* =========================
-   Countdown
-   ========================= */
+/* ===== COUNTDOWN ===== */
 function startCountdown(isoString, elNode) {
   const target = new Date(isoString);
   if (isNaN(target)) { elNode.innerHTML = ''; return; }
@@ -516,9 +506,7 @@ function startCountdown(isoString, elNode) {
   const timer = setInterval(update, 1000);
 }
 
-/* =========================
-   ICS generation
-   ========================= */
+/* ===== ICS GENERATION ===== */
 function uid() {
   return 'id-' + Math.random().toString(36).slice(2,10);
 }

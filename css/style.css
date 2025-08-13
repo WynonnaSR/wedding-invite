@@ -1,6 +1,4 @@
-/* ======================
-   VARIABLES / PALETTE
-   ====================== */
+/* ===== GLOBAL: VARIABLES / PALETTE ===== */
 /* Цвета можно менять здесь.
    Палитра (пример, 4 цвета):
    --cream: #F8F2E7
@@ -27,7 +25,7 @@
   --med: 650ms;
 }
 
-/* FONTS — подключаем локальные файлы */
+/* ===== GLOBAL: FONTS (local) ===== */
 @font-face {
     font-family: 'Cormorant Garamond';
     src: url('../fonts/CormorantGaramond-VariableFont_wght.ttf') format('truetype');
@@ -42,18 +40,18 @@
     font-style: normal;
 }
 
-/* --- Базовые настройки шрифтов --- */
+/* ===== GLOBAL: BASE FONT FAMILIES ===== */
 :root {
     --font-main: 'Cormorant Garamond', serif;
     --font-script: 'Great Vibes', cursive;
 }
 
-/* reduced motion fallback */
+/* ===== GLOBAL: REDUCED MOTION FALLBACK ===== */
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
 
-/* BASIC LAYOUT */
+/* ===== GLOBAL: BASIC LAYOUT ===== */
 * { box-sizing: border-box; }
 html, body { height: 100%; scroll-behavior: smooth; }
 /* БЫЛО: html { scroll-snap-type: y proximity; } */
@@ -70,7 +68,7 @@ body {
   line-height: 1.45;
 }
 
-/* NAV */
+/* ===== NAV SECTION ===== */
 .nav {
   position: fixed;
   left: 0;
@@ -118,7 +116,7 @@ body {
 }
 .btn.small { padding:8px 10px; font-size:13px; }
 
-/* NAV overlay (menu) */
+/* ----- NAV OVERLAY (menu) ----- */
 .nav-overlay {
     position: fixed;
     left: 0;
@@ -140,7 +138,7 @@ body {
     pointer-events: auto;
 }
 
-/* Само меню */
+/* Menu panel */
 .menu-panel {
     background: rgba(248,242,231,0.98);
     border: 1px solid rgba(0,0,0,0.1);
@@ -155,7 +153,7 @@ body {
     gap: 14px;
 }
 
-/* Список внутри меню */
+/* Menu list */
 .menu-panel ul {
     list-style: none;
     margin: 0;
@@ -171,7 +169,7 @@ body {
     font-size: 18px;
 }
 
-/* HERO */
+/* ===== HERO SECTION ===== */
 .hero { position:relative; height:100vh; min-height:560px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
 .hero-bg { position:absolute; inset:0; z-index:0; overflow:hidden; display:block; }
 .hero-bg img { width:110%; height:110%; object-fit:cover; transform: translateY(0); will-change:transform; transition:transform 600ms var(--ease); filter: grayscale(1) contrast(.95) saturate(0.5); }
@@ -196,7 +194,7 @@ body {
   font-family: var(--font-script);
 }
 
-/* Paper section */
+/* ===== CONTENT SECTIONS WRAPPER ===== */
 .section {
   padding:64px 18px;
   position: relative; /* гарантирует, что секция рисуется поверх bg (-1) */
@@ -209,7 +207,7 @@ body {
   box-shadow: 0 8px 22px rgba(0,0,0,0.06); color:var(--accent-dark); font-size:18px;
 }
 
-/* Фиксированный слой бумажной текстуры для всего контента после hero */
+/* ===== PAPER BACKGROUND (fixed layer below content) ===== */
 .paper-bg-fixed {
   position: fixed;
   inset: 0;
@@ -228,7 +226,7 @@ body {
   transform: translateY(0);
 }
 
-/* Секции ниже: только tint поверх фиксированной текстуры (без повторной текстуры) */
+/* ===== SECTION BACKGROUND TINTS ===== */
 .paper-section,
 .schedule-section,
 .photo-section,
@@ -242,7 +240,7 @@ body {
   background-size: cover;
 }
 
-/* Единые оттенки tint по секциям (можете менять альфу) */
+/* Common tint per section */
 .paper-section    { --section-tint: rgba(248,242,231,0.80); }
 .schedule-section { --section-tint: rgba(216,202,176,0.78); }
 .photo-section    { --section-tint: rgba(89,109,123,0.75); color:#fff; }
@@ -251,7 +249,7 @@ body {
 .address-section  { --section-tint: rgba(255,255,255,0.82); }
 .footer           { --section-tint: rgba(248,242,231,0.85); }
 
-/* typographic helpers */
+/* ===== TYPOGRAPHY HELPERS ===== */
 .section-title { font-family: var(--font-main); font-size:26px; margin:0 0 14px; }
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: rgba(255,255,255,0.6); padding:12px; border-radius:8px; white-space: normal; /* позволяем переносы внутри строк */ }
 /* строки расписания: время ····· событие */
@@ -274,12 +272,12 @@ body {
   margin-bottom: 4px;
 }
 
-/* photo section typography */
+/* ===== PHOTO SECTION (typography) ===== */
 #photo-text { max-width: var(--max-width); margin: 8px auto 0; font-size: 18px; line-height: 1.55; }
 .photo-section a { color: #fff; text-decoration: underline; }
 .tg-handle { font-weight: 600; text-decoration: underline; }
 
-/* RSVP form */
+/* ===== RSVP SECTION (form) ===== */
 .rsvp-form { max-width:600px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
 .rsvp-form label { display:flex; flex-direction:column; gap:6px; font-size:14px; }
 .rsvp-form input, .rsvp-form textarea { padding:10px; border-radius:8px; border:1px solid rgba(0,0,0,0.08); font-size:15px; }
@@ -341,13 +339,13 @@ body {
   transition: transform 180ms var(--ease), box-shadow 180ms var(--ease);
 }
 
-/* faq details styles */
+/* ===== FAQ SECTION ===== */
 details { background: rgba(255,255,255,0.8); padding:10px 12px; border-radius:8px; margin-bottom:8px; }
 summary { cursor:pointer; font-weight:600; }
 
-/* map */
+/* ===== MAP SECTION ===== */
 .map-wrap iframe { border:0; border-radius:8px; box-shadow: 0 6px 18px rgba(0,0,0,0.08); }
-/* map actions */
+/* Map actions */
 .map-actions { display:flex; gap:10px; align-items:center; margin-top:10px; }
 .map-btn {
   width:44px; height:44px; border-radius:50%;
@@ -365,9 +363,9 @@ summary { cursor:pointer; font-weight:600; }
 .map-btn-google::after { content:"G"; }  /* условная иконка Google */
 .map-btn-yandex::after { content:"Я"; }  /* условная иконка Яндекс */
 
-/* footer */
+/* ===== FOOTER SECTION ===== */
 .footer { padding:36px 18px; text-align:center; font-size:14px; color:var(--faded-blue); }
-/* минималистичный кредит внизу */
+/* Minimal credit */
 .footer-credit {
   margin: 10px auto 0;
   padding-top: 8px;
@@ -378,7 +376,7 @@ summary { cursor:pointer; font-weight:600; }
 }
 .footer a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 
-/* responsive */
+/* ===== RESPONSIVE ===== */
 @media (max-width:720px) {
   .hero-large { font-size:42px; }
   .hero-script { font-size:20px; }
@@ -389,7 +387,7 @@ summary { cursor:pointer; font-weight:600; }
   .burger span { width: 30px; }
 }
 
-/* utility classes for animations */
+/* ===== ANIMATIONS & UTILS ===== */
 .hero-content.fade-in { opacity:0; transform: translateY(24px); transition: opacity var(--med) var(--ease), transform var(--med) var(--ease); }
 .hero-content.fade-in.show { opacity:1; transform:translateY(0); }
 .slide-up { opacity:0; transform: translateY(24px); transition: opacity 700ms var(--ease), transform 700ms var(--ease); }
@@ -494,11 +492,11 @@ summary { cursor:pointer; font-weight:600; }
   .hero-date .hero-script { font-size: 30px; }
 }
 
-/* Шаги героя */
+/* ===== HERO STEPS (multistep layout) ===== */
 .hero-steps {
   position: relative;
   width: 100%;
-  /* height: auto; без overflow */
+  /* height: auto; */
 }
 .hero-step {
   position: relative;
@@ -526,7 +524,7 @@ summary { cursor:pointer; font-weight:600; }
   transform: translateY(0);
 }
 
-/* БЫЛО: у шагов был snap к центру */
+/* Duplicate declarations preserved for compatibility */
 .hero-step {
   position: relative;
   width: 100%;
@@ -545,7 +543,7 @@ summary { cursor:pointer; font-weight:600; }
   position: fixed;
   top: 0;
   bottom: 0;
-  /* фиксированный фон ограничиваем по ширине сайта и центрируем */
+  /* Fixed bg constrained to site width and centered */
   left: 50%;
   width: min(100vw, var(--site-max));
   transform: translateX(-50%);
@@ -557,15 +555,15 @@ summary { cursor:pointer; font-weight:600; }
 .hero-bg-fixed::after {
   content: "";
   position: absolute;
-  inset: 0; /* градиент повторяет новую ширину hero-bg-fixed */
+  inset: 0; /* gradient overlays hero-bg-fixed */
   background: linear-gradient(180deg, rgba(0,0,0,0.0) 0%, rgba(0,0,0,0.45) 80%);
   opacity: 0;
   transition: opacity 0.7s var(--ease);
   pointer-events: none;
 }
-/* затемнение включается после первого скролла */
+/* Darken bg after the first scroll */
 .hero-steps.overlay-on .hero-bg-fixed::after { opacity: 1; }
-/* когда выходим из блока hero — прячем фон */
+/* Hide bg outside the hero */
 .hero-bg-fixed.bg-hidden { opacity: 0; }
 
 .hero-step-content {
@@ -580,7 +578,7 @@ summary { cursor:pointer; font-weight:600; }
 }
 .hero-step-content.show { opacity: 1; transform: translateY(0); }
 
-/* Крупнее для шага 3: "Ждём вас" + дата */
+/* Step 3: larger typography for date */
 #hero-step-3 .hero-script { font-size: 36px; }
 #hero-step-3 .hero-large  { font-size: 76px; letter-spacing: 3px; }
 
@@ -589,7 +587,7 @@ summary { cursor:pointer; font-weight:600; }
   #hero-step-3 .hero-large  { font-size: 42px; }
 }
 
-/* новый маленький лейбл под таймером */
+/* Small label under countdown */
 .hero-countdown-label {
   margin-top: 6px;
   text-align: center;
@@ -612,7 +610,7 @@ summary { cursor:pointer; font-weight:600; }
   font-size: 14px;
 }
 
-/* Invite styles */
+/* ===== INVITE BLOCK STYLES ===== */
 .inv { display:block; }
 .inv-head { text-align: center; margin-bottom: 18px; }
 .inv-h1 {
@@ -622,7 +620,7 @@ summary { cursor:pointer; font-weight:600; }
   font-size: 28px;
   letter-spacing: 1px;
   color: var(--accent-dark);
-  white-space: nowrap; /* не переносить “💦 WEDDING POOL PARTY 💃🕺” */
+  white-space: nowrap; /* keep title on one line */
 }
 .inv-subtitle {
   margin: 0 0 8px;
@@ -671,7 +669,7 @@ summary { cursor:pointer; font-weight:600; }
   .inv-title { font-size: 16px; }
 }
 
-/* iOS Safari: иногда не рендерит динамический текст кнопки — рисуем через ::after */
+/* ===== iOS SAFARI FIX (button label via ::after) ===== */
 html.ios #rsvp-submit { position: relative; color: transparent; }
 html.ios #rsvp-submit::after {
   content: attr(data-label);
@@ -685,7 +683,7 @@ html.ios #rsvp-submit::after {
   flex-shrink: 0;
 }
 
-/* Address */
+/* ===== ADDRESS ===== */
 .address-location {
   font-weight: 600;
   margin: 2px 0 8px;
