@@ -514,6 +514,18 @@ summary { cursor:pointer; font-weight:600; }
   scroll-snap-align: unset;
 }
 
+/* Make the first hero step appear from the bottom and move up while scrolling */
+.hero-step[data-step="1"] {
+  align-items: flex-end; /* anchor content to bottom instead of center */
+}
+#hero-step-1 {
+  padding-bottom: clamp(64px, 14vh, 200px); /* comfortable bottom spacing on all screens */
+  transform: translateY(60px); /* stronger rise-from-bottom effect on reveal */
+}
+#hero-step-1.show {
+  transform: translateY(0);
+}
+
 /* БЫЛО: у шагов был snap к центру */
 .hero-step {
   position: relative;
